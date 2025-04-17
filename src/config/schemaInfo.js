@@ -34,7 +34,7 @@ Here is the database schema:
    - Staff Salaries → Staff salaries, worker salaries, labor salaries
    - Salaries → Employee salaries, wages, bonuses, commissions, benefits
    - Utilities → Groceries, Electricity, Water, Gas, Internet, Phone, Cleaning, Repairs, Maintenance, Waste, Recycling, Sewer, Heating, Cooling
-   - Food & Beverages → Restaurants, Cafes, Bars, Groceries, Snacks, Drinks, Alcohol
+   - Food & Beverages → Restaurants, Cafes, Bars, Snacks, Drinks, Alcohol, food, beverages, catering, takeout, delivery
    - Transportation → Fuel, Gas, Taxi, Public Transport, Parking, Tolls, Vehicle Maintenance, Repairs, Registration, Insurance
    - Health & Fitness → Gym, Fitness, Health, Medical, Insurance, Pharmacy, Doctor, Dentist, Therapist, Counseling
    - Technology & Gadgets → Electronics, Software, Computers, Mobile Phones, Gadgets, Hosting, Domains, laptops, tablets, accessories
