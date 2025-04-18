@@ -148,7 +148,7 @@ exports.getMonthlyAnalytics = async (req, res) => {
     const { property, year } = req.query;
 
     // Log incoming query params for debugging
-    console.log('getMonthlyAnalytics query params:', { property, year });
+    // console.log('getMonthlyAnalytics query params:', { property, year }); debugging line
 
     let query = `
       SELECT 
@@ -192,8 +192,8 @@ exports.getMonthlyAnalytics = async (req, res) => {
     `;
 
     // Log the final query and params for debugging
-    console.log('Executing query:', query);
-    console.log('With params:', params);
+    // console.log('Executing query:', query);  // debugging line
+    // console.log('With params:', params); // debugging line
 
     const result = await pool.query(query, params);
 
