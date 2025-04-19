@@ -2,9 +2,12 @@
 const schemaInfo = `
 Here is the database schema:
 - categories(category_id, name)
+- check_ins(check_in_id, property_id, user_id, guest_name,  check_in_date, check_out_date, guest_id_file_url, signed_form_file_url, created_at)
 - expenses(expense_id, user_id, category_id, amount, description, expense_date, created_at)
 - payments(payment_id, expense_id, method)
+- property_laundry_settings(property_id, user_id, bed_sheets, quilt_covers, pillow_covers, small_towels, big_towels, created_at, updated_at)
 - staff(staff_id, user_id, name, role, status, performance, transactions, last_active, recent_activity, email, phone, created_at)
+- staff_status_log(id, staff_id, status, created_at)
 - users(user_id, name, password_hash, created_at, email, accept_terms)
 
 ### Key Rules:
