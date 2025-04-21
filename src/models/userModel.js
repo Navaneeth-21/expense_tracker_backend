@@ -1,35 +1,26 @@
-// src/models/userModel.js (unchanged)
 const pool = require('../config/db');
 
-class UserModel {
-  static async createUser({ name, email, password_hash, accept_terms }) {
-    const query = `
-      INSERT INTO users (name, email, password_hash, accept_terms)
-      VALUES ($1, $2, $3, $4)
-      RETURNING user_id, name, email, created_at;
-    `;
-    const values = [name, email, password_hash, accept_terms];
-    try {
-      const { rows } = await pool.query(query, values);
-      return rows[0];
-    } catch (error) {
-      throw error;
-    }
-  }
+const findByEmail = async (email) => {
+  const query = `
+    SELECT user_id, name, email, password_hash, accept_terms, created_at, role
+    FROM users
+    WHERE email = $1;
+  `;
+  const values = [email];
+  const result = await pool.query(query, values);
+  return result.rows[0] || null;
+};
 
-  static async findByEmail(email) {
-    const query = `
-      SELECT user_id, name, email, password_hash, created_at
-      FROM users
-      WHERE email = $1;
-    `;
-    try {
-      const { rows } = await pool.query(query, [email]);
-      return rows[0];
-    } catch (error) {
-      throw error;
-    }
-  }
-}
+const createUser = async (userData) => {
+  const { name, email, password_hash, accept_terms, role } = userData;
+  const query = `
+    INSERT INTO users (name, email, password_hash, accept_terms, role, created_at)
+    VALUES ($1, $2, $3, $4, $5, NOW())
+    RETURNING user_id, name, email, password_hash, accept_terms, role, created_at;
+  `;
+  const values = [name, email, password_hash, accept_terms, role || 'staff'];
+  const result = await pool.query(query, values);
+  return result.rows[0];
+};
 
-module.exports = UserModel;
+module.exports = { findByEmail, createUser };
