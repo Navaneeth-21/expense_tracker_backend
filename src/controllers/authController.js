@@ -1,13 +1,13 @@
-// src/controllers/authController.js
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const UserModel = require('../models/userModel');
 require('dotenv').config();
 
 const register = async (req, res) => {
-  const { name, email, password, confirmPassword, acceptTerms } = req.body;
+  const { name, email, password, confirmPassword, acceptTerms, role } = req.body;
 
   try {
+    // Validate input
     if (!name || !email || !password || !confirmPassword || acceptTerms === undefined) {
       return res.status(400).json({ error: 'All fields are required' });
     }
@@ -17,24 +17,34 @@ const register = async (req, res) => {
     if (!acceptTerms) {
       return res.status(400).json({ error: 'You must accept the terms of service' });
     }
+    // Validate role
+    const validRoles = ['super admin', 'admin', 'staff'];
+    if (!role || !validRoles.includes(role)) {
+      return res.status(400).json({ error: 'Invalid role. Must be one of: super admin, admin, staff' });
+    }
 
+    // Check for existing user
     const existingUser = await UserModel.findByEmail(email);
     if (existingUser) {
       return res.status(409).json({ error: 'Email already registered' });
     }
 
+    // Hash password
     const saltRounds = 10;
     const password_hash = await bcrypt.hash(password, saltRounds);
 
+    // Create new user with role
     const newUser = await UserModel.createUser({
       name,
       email,
       password_hash,
       accept_terms: acceptTerms,
+      role, // Include role
     });
 
+    // Generate JWT with role
     const token = jwt.sign(
-      { user_id: newUser.user_id, email: newUser.email },
+      { user_id: newUser.user_id, email: newUser.email, role: newUser.role },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -45,6 +55,7 @@ const register = async (req, res) => {
         user_id: newUser.user_id,
         name: newUser.name,
         email: newUser.email,
+        role: newUser.role, // Include role in response
         created_at: newUser.created_at,
       },
       token,
@@ -76,11 +87,11 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Generate JWT
+    // Generate JWT with role
     const token = jwt.sign(
-      { user_id: user.user_id, email: user.email },
+      { user_id: user.user_id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' } // Token expires in 1 hour
+      { expiresIn: '1h' }
     );
 
     // Send success response with token
@@ -90,6 +101,7 @@ const login = async (req, res) => {
         user_id: user.user_id,
         name: user.name,
         email: user.email,
+        role: user.role, // Include role in response
         created_at: user.created_at,
       },
       token,
@@ -99,6 +111,7 @@ const login = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 const validateToken = (req, res) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -108,8 +121,15 @@ const validateToken = (req, res) => {
   }
 
   try {
-    jwt.verify(token, process.env.JWT_SECRET);
-    res.status(200).json({ message: 'Token is valid' });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.status(200).json({
+      message: 'Token is valid',
+      user: {
+        user_id: decoded.user_id,
+        email: decoded.email,
+        role: decoded.role, // Include role in response
+      },
+    });
   } catch (error) {
     res.status(403).json({ error: 'Invalid or expired token' });
   }
